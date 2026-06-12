@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bifrost — Where Creators Meet Editors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0A0A0F;
+      --surface: #13121A;
+      --card: #1A1826;
+      --violet-deep: #2A1F3D;
+      --violet-mid: #6B4FBB;
+      --violet-light: #9B7EE8;
+      --lime: #C8FF00;
+      --lime-dim: #8fb300;
+      --text: #F0EBE1;
+      --text-muted: #8A8499;
+      --text-dim: #5A5468;
+      --border: rgba(255,255,255,0.06);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(10,10,15,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 20px; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 12px var(--lime);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 14px; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--lime); color: #0A0A0F !important;
+      padding: 9px 20px; border-radius: 8px;
+      font-weight: 600 !important; font-size: 14px !important;
+      transition: transform 0.15s, box-shadow 0.15s !important;
+      cursor: pointer;
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 20px rgba(200,255,0,0.35) !important;
+      color: #0A0A0F !important;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 120px 48px 80px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(107,79,187,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(107,79,187,0.07) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(107,79,187,0.25) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-split {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; width: 100%; max-width: 900px;
+      position: relative; z-index: 2; margin-bottom: 56px;
+    }
+
+    .world-card {
+      flex: 1; padding: 32px 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      transition: transform 0.4s ease, border-color 0.4s ease;
+      max-width: 300px;
+    }
+    .world-card:hover { transform: translateY(-4px); }
+    .world-card.creator { border-right: none; border-radius: 20px 0 0 20px; }
+    .world-card.editor  { border-left: none;  border-radius: 0 20px 20px 0; }
+    .world-card.creator:hover { border-color: var(--violet-light); }
+    .world-card.editor:hover  { border-color: var(--lime); }
+
+    .world-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .world-card.creator .world-label { color: var(--violet-light); }
+    .world-card.editor  .world-label { color: var(--lime); }
+
+    .world-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px; font-weight: 700; margin-bottom: 16px;
+    }
+    .world-items { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .world-items li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .world-items li::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .world-card.creator .world-items li::before { background: var(--violet-light); }
+    .world-card.editor  .world-items li::before { background: var(--lime); }
+
+    .connect-node {
+      width: 80px; height: 80px; flex-shrink: 0;
+      position: relative; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .connect-node svg {
+      width: 80px; height: 80px;
+      filter: drop-shadow(0 0 16px rgba(200,255,0,0.5));
+    }
+    .connect-ring {
+      animation: spin 8s linear infinite;
+      transform-origin: 40px 40px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .connect-core {
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.6) drop-shadow(0 0 8px var(--lime)); }
+    }
+
+    .hero-text { text-align: center; position: relative; z-index: 2; max-width: 680px; }
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--lime); margin-bottom: 16px;
+    }
+    .hero-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(40px, 6vw, 64px); font-weight: 700;
+      line-height: 1.05; letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+    .hero-headline em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--violet-light), var(--lime));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 17px; color: var(--text-muted); line-height: 1.6;
+      margin-bottom: 36px; font-weight: 300;
+    }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--lime); color: #0A0A0F;
+      padding: 14px 28px; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 15px;
+      border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(200,255,0,0.3);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      padding: 14px 28px; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600; font-size: 15px;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-secondary:hover { border-color: var(--violet-light); background: rgba(107,79,187,0.1); }
+
+    .stats-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 48px;
+      display: flex; justify-content: center; gap: 64px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px; font-weight: 700; display: block;
+    }
+    .stat-label {
+      font-size: 12px; color: var(--text-muted);
+      font-family: 'Space Mono', monospace; letter-spacing: 1px;
+    }
+    .stat:nth-child(1) .stat-num { color: var(--violet-light); }
+    .stat:nth-child(2) .stat-num { color: var(--lime); }
+    .stat:nth-child(3) .stat-num { color: var(--violet-light); }
+
+    .section { padding: 96px 48px; max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 4vw, 42px); font-weight: 700;
+      letter-spacing: -1px; margin-bottom: 56px;
+    }
+    .section-title span { color: var(--violet-light); }
+
+    .flow {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px; position: relative;
+    }
+    .flow-step {
+      background: var(--card);
+      padding: 36px 28px;
+      position: relative;
+    }
+    .flow-step:first-child { border-radius: 16px 0 0 16px; }
+    .flow-step:last-child  { border-radius: 0 16px 16px 0; }
+
+    .flow-arrow {
+      position: absolute; right: -18px; top: 50%;
+      transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--text-muted); z-index: 1;
+    }
+    .flow-step:last-child .flow-arrow { display: none; }
+
+    .flow-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 20px;
+    }
+    .flow-step:nth-child(1) .flow-icon { background: rgba(107,79,187,0.15); }
+    .flow-step:nth-child(2) .flow-icon { background: rgba(200,255,0,0.1); }
+    .flow-step:nth-child(3) .flow-icon { background: rgba(107,79,187,0.15); }
+
+    .flow-step h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px; font-weight: 600; margin-bottom: 10px;
+    }
+    .flow-step p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    .profiles-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 96px 48px;
+    }
+    .profiles-inner { max-width: 1100px; margin: 0 auto; }
+    .profiles-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    }
+    .profile-panel {
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .panel-header {
+      padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .profile-panel.for-creator .panel-header {
+      background: linear-gradient(135deg, rgba(107,79,187,0.3), rgba(42,31,61,0.5));
+    }
+    .profile-panel.for-editor .panel-header {
+      background: linear-gradient(135deg, rgba(143,179,0,0.2), rgba(42,31,61,0.5));
+    }
+    .panel-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px; font-weight: 700;
+    }
+    .panel-badge {
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      padding: 5px 10px; border-radius: 20px; letter-spacing: 1px;
+    }
+    .for-creator .panel-badge { background: rgba(107,79,187,0.3); color: var(--violet-light); }
+    .for-editor .panel-badge  { background: rgba(200,255,0,0.15); color: var(--lime); }
+
+    .panel-body { padding: 28px; background: var(--card); }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 14px;
+      font-size: 14px; color: var(--text-muted); line-height: 1.5;
+    }
+    .feat-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0; margin-top: 1px;
+    }
+    .for-creator .feat-icon { background: rgba(107,79,187,0.2); }
+    .for-editor  .feat-icon { background: rgba(200,255,0,0.1); }
+    .feat-title { font-weight: 500; color: var(--text); display: block; margin-bottom: 2px; }
+
+    .testimonials { padding: 96px 48px; max-width: 1100px; margin: 0 auto; }
+    .t-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .t-card {
+      background: var(--card); border-radius: 16px; padding: 28px;
+      border: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+    .t-card:hover { border-color: var(--violet-mid); }
+    .t-quote {
+      font-size: 14px; color: var(--text-muted); line-height: 1.7;
+      margin-bottom: 20px; font-style: italic;
+    }
+    .t-author { display: flex; align-items: center; gap: 12px; }
+    .t-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .t-name { font-size: 13px; font-weight: 600; }
+    .t-role { font-size: 12px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+
+    .final-cta {
+      text-align: center; padding: 120px 48px;
+      position: relative; overflow: hidden;
+    }
+    .final-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(107,79,187,0.15), transparent);
+      pointer-events: none;
+    }
+    .final-cta h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 5vw, 56px); font-weight: 700;
+      letter-spacing: -1.5px; margin-bottom: 16px;
+      position: relative; z-index: 1;
+    }
+    .final-cta h2 em {
+      font-style: normal; color: var(--lime);
+    }
+    .final-cta p {
+      color: var(--text-muted); font-size: 16px; margin-bottom: 40px;
+      max-width: 480px; margin-left: auto; margin-right: auto;
+      position: relative; z-index: 1;
+    }
+    .final-actions {
+      display: flex; gap: 16px; justify-content: center;
+      flex-wrap: wrap; position: relative; z-index: 1;
+    }
+    .btn-creator {
+      background: var(--violet-mid); color: #fff;
+      padding: 15px 32px; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-creator:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(107,79,187,0.4);
+    }
+    .btn-editor {
+      background: var(--lime); color: #0A0A0F;
+      padding: 15px 32px; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-editor:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(200,255,0,0.35);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer p { font-size: 13px; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-size: 13px; color: var(--text-dim); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-muted); }
+
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== AUTH MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(5, 5, 10, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1; pointer-events: all;
+    }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      width: 100%; max-width: 460px;
+      padding: 40px;
+      position: relative;
+      transform: translateY(20px) scale(0.98);
+      transition: transform 0.3s ease;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+    .modal-overlay.active .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Accent bar at top of modal — changes per role */
+    .modal-accent {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 24px 24px 0 0;
+    }
+    .modal-accent.creator { background: linear-gradient(90deg, var(--violet-mid), var(--violet-light)); }
+    .modal-accent.editor  { background: linear-gradient(90deg, var(--lime-dim), var(--lime)); }
+
+    .modal-close {
+      position: absolute; top: 18px; right: 18px;
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; line-height: 1;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+
+    .modal-role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .modal-role-badge.creator {
+      background: rgba(107,79,187,0.2);
+      color: var(--violet-light);
+      border: 1px solid rgba(107,79,187,0.3);
+    }
+    .modal-role-badge.editor {
+      background: rgba(200,255,0,0.1);
+      color: var(--lime);
+      border: 1px solid rgba(200,255,0,0.2);
+    }
+    .modal-role-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+    }
+    .creator .modal-role-dot { background: var(--violet-light); }
+    .editor  .modal-role-dot { background: var(--lime); }
+
+    .modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px; font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .modal-subtitle {
+      font-size: 14px; color: var(--text-muted);
+      margin-bottom: 32px; line-height: 1.5;
+    }
+
+    /* Tab switcher: Login / Sign up */
+    .auth-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+    .auth-tab {
+      flex: 1; padding: 9px;
+      text-align: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px; font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      user-select: none;
+    }
+    .auth-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Form */
+    .auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-muted);
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.2px;
+    }
+    .field input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .field input::placeholder { color: var(--text-dim); }
+    .field input:focus {
+      border-color: rgba(107,79,187,0.5);
+      box-shadow: 0 0 0 3px rgba(107,79,187,0.1);
+    }
+    .editor-mode .field input:focus {
+      border-color: rgba(200,255,0,0.4);
+      box-shadow: 0 0 0 3px rgba(200,255,0,0.07);
+    }
+
+    /* Submit button */
+    .auth-submit {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none; cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 15px;
+      margin-top: 4px;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .auth-submit:hover { transform: translateY(-1px); }
+    .auth-submit.creator-btn {
+      background: linear-gradient(135deg, var(--violet-mid), var(--violet-light));
+      color: #fff;
+    }
+    .auth-submit.creator-btn:hover {
+      box-shadow: 0 8px 28px rgba(107,79,187,0.4);
+    }
+    .auth-submit.editor-btn {
+      background: var(--lime); color: #0A0A0F;
+    }
+    .auth-submit.editor-btn:hover {
+      box-shadow: 0 8px 28px rgba(200,255,0,0.3);
+    }
+
+    /* Divider */
+    .auth-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 4px 0;
+    }
+    .auth-divider span {
+      font-size: 12px; color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* Google / social button */
+    .auth-social {
+      width: 100%; padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .auth-social:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-color: rgba(255,255,255,0.14);
+    }
+    .auth-social svg { flex-shrink: 0; }
+
+    /* Forgot password / terms */
+    .auth-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: -4px;
+    }
+    .auth-meta a, .auth-link {
+      font-size: 12px; color: var(--text-dim);
+      text-decoration: none; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .auth-meta a:hover, .auth-link:hover { color: var(--text-muted); }
+
+    .auth-terms {
+      font-size: 12px; color: var(--text-dim);
+      text-align: center; line-height: 1.5;
+      margin-top: 4px;
+    }
+    .auth-terms a { color: var(--text-muted); text-decoration: underline; }
+
+    /* Password strength indicator */
+    .pwd-strength {
+      display: flex; gap: 4px; margin-top: 6px;
+    }
+    .pwd-bar {
+      flex: 1; height: 3px; border-radius: 2px;
+      background: rgba(255,255,255,0.08);
+      transition: background 0.3s;
+    }
+
+    /* Success state */
+    .modal-success {
+      text-align: center; padding: 20px 0;
+      display: none; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .modal-success.visible { display: flex; }
+    .success-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .creator-success-icon { background: rgba(107,79,187,0.2); }
+    .editor-success-icon  { background: rgba(200,255,0,0.12); }
+    .success-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px; font-weight: 700;
+    }
+    .success-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-split { flex-direction: column; gap: 8px; }
+      .world-card { max-width: 100%; }
+      .world-card.creator, .world-card.editor { border-radius: 12px; border: 1px solid var(--border); }
+      .connect-node { transform: rotate(90deg); }
+      .stats-bar { gap: 32px; padding: 18px 20px; }
+      .section { padding: 64px 20px; }
+      .flow { grid-template-columns: 1fr; gap: 8px; }
+      .flow-step:first-child { border-radius: 12px 12px 0 0; }
+      .flow-step:last-child  { border-radius: 0 0 12px 12px; }
+      .flow-arrow { display: none; }
+      .profiles-section { padding: 64px 20px; }
+      .profiles-grid { grid-template-columns: 1fr; }
+      .testimonials { padding: 64px 20px; }
+      .t-grid { grid-template-columns: 1fr; }
+      .final-cta { padding: 80px 20px; }
+      footer { padding: 32px 20px; flex-direction: column; align-items: flex-start; }
+      .modal { padding: 28px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Bifrost
+    </div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#for-you">For you</a>
+      <a href="#stories">Stories</a>
+      <a href="#" class="nav-cta" onclick="openAuth('creator', event)">Join free</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-split">
+      <div class="world-card creator">
+        <div class="world-label">Content Creator</div>
+        <div class="world-name">Your vision,<br>perfectly cut.</div>
+        <ul class="world-items">
+          <li>YouTube, Reels, Podcasts</li>
+          <li>Post a brief, get proposals</li>
+          <li>Review portfolios instantly</li>
+          <li>Pay on delivery</li>
+        </ul>
+      </div>
+
+      <div class="connect-node">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <circle class="connect-ring" cx="40" cy="40" r="30"
+            fill="none" stroke="rgba(107,79,187,0.4)" stroke-width="1"
+            stroke-dasharray="8 6"/>
+          <line x1="40" y1="10" x2="40" y2="20" stroke="#C8FF00" stroke-width="1.5" opacity="0.6"/>
+          <line x1="40" y1="60" x2="40" y2="70" stroke="#C8FF00" stroke-width="1.5" opacity="0.6"/>
+          <line x1="10" y1="40" x2="20" y2="40" stroke="#C8FF00" stroke-width="1.5" opacity="0.6"/>
+          <line x1="60" y1="40" x2="70" y2="40" stroke="#C8FF00" stroke-width="1.5" opacity="0.6"/>
+          <circle class="connect-core" cx="40" cy="40" r="14"
+            fill="#13121A" stroke="#C8FF00" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="8" fill="rgba(200,255,0,0.15)"/>
+          <circle cx="40" cy="40" r="4" fill="#C8FF00"/>
+        </svg>
+      </div>
+
+      <div class="world-card editor">
+        <div class="world-label">Video Editor</div>
+        <div class="world-name">Your craft,<br>always in demand.</div>
+        <ul class="world-items">
+          <li>Showcase your reel</li>
+          <li>Browse creator briefs</li>
+          <li>Get matched by style</li>
+          <li>Build lasting clients</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hero-text">
+      <div class="hero-eyebrow">The platform for video collaboration</div>
+      <h1 class="hero-headline">
+        Raw footage meets<br><em>the right editor.</em>
+      </h1>
+      <p class="hero-sub">Bifrost connects content creators with skilled editors — so every upload looks exactly the way you imagined it.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="openAuth('creator', event)">Find your editor →</a>
+        <a href="#" class="btn-secondary" onclick="openAuth('editor', event)">List your skills</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-num">12,400+</span>
+      <span class="stat-label">Editors listed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">98%</span>
+      <span class="stat-label">Match satisfaction</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">3.2M hrs</span>
+      <span class="stat-label">Content delivered</span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="reveal">
+      <div class="section-eyebrow">The process</div>
+      <h2 class="section-title">From brief to <span>published</span> in three steps</h2>
+    </div>
+    <div class="flow reveal">
+      <div class="flow-step">
+        <div class="flow-icon">📋</div>
+        <h3>Post your brief</h3>
+        <p>Describe your content style, deadline, and what you're going for. Attach a rough cut or sample if you have one.</p>
+        <div class="flow-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">⚡</div>
+        <h3>Get matched instantly</h3>
+        <p>Our matching surfaces editors whose style, pace, and genre fit your content — not just anyone available.</p>
+        <div class="flow-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🎬</div>
+        <h3>Review &amp; publish</h3>
+        <p>Give feedback in-platform, approve the final cut, and release payment. Done. Your audience won't know how fast you moved.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOR YOU SECTION -->
+  <div class="profiles-section" id="for-you">
+    <div class="profiles-inner">
+      <div class="reveal">
+        <div class="section-eyebrow">Built for both sides</div>
+        <h2 class="section-title">Everything you need, <span>nothing you don't</span></h2>
+      </div>
+      <div class="profiles-grid reveal">
+        <div class="profile-panel for-creator">
+          <div class="panel-header">
+            <div class="panel-label">🎥 For Creators</div>
+            <span class="panel-badge">POST A BRIEF</span>
+          </div>
+          <div class="panel-body">
+            <ul class="feature-list">
+              <li>
+                <div class="feat-icon">🔍</div>
+                <div>
+                  <span class="feat-title">Style-matched search</span>
+                  Browse editor portfolios filtered by genre — cinematic, fast-cut, documentary, vlog, and more.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">💬</div>
+                <div>
+                  <span class="feat-title">Built-in messaging &amp; feedback</span>
+                  Give timestamped notes directly on the draft. No more back-and-forth over email.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">🔒</div>
+                <div>
+                  <span class="feat-title">Secure payments</span>
+                  Funds are held in escrow and only released when you're happy with the final cut.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">🔁</div>
+                <div>
+                  <span class="feat-title">Repeat with one click</span>
+                  Loved your editor? Re-book them for your next project instantly.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="profile-panel for-editor">
+          <div class="panel-header">
+            <div class="panel-label">✂️ For Editors</div>
+            <span class="panel-badge">LIST YOUR SKILLS</span>
+          </div>
+          <div class="panel-body">
+            <ul class="feature-list">
+              <li>
+                <div class="feat-icon">🎨</div>
+                <div>
+                  <span class="feat-title">Showcase your reel</span>
+                  Upload your portfolio with tags for genre, software, and style. Let your work speak first.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">📣</div>
+                <div>
+                  <span class="feat-title">Inbound briefs, no cold pitching</span>
+                  Creators come to you based on your style. Spend your time editing, not marketing.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">📈</div>
+                <div>
+                  <span class="feat-title">Build your reputation</span>
+                  Verified reviews and completion stats build the credibility that brings better-paying work.
+                </div>
+              </li>
+              <li>
+                <div class="feat-icon">💳</div>
+                <div>
+                  <span class="feat-title">Fast, reliable payouts</span>
+                  Get paid within 24 hours of approval. No chasing invoices.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="stories">
+    <div class="reveal">
+      <div class="section-eyebrow">Real results</div>
+      <h2 class="section-title">They made the <span>match</span></h2>
+    </div>
+    <div class="t-grid reveal">
+      <div class="t-card">
+        <p class="t-quote">"I was drowning in raw footage every week. Bifrost found me an editor in 20 minutes who now handles my entire channel. My upload schedule went from 2 videos a month to 6."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:rgba(107,79,187,0.3);color:var(--violet-light);">A</div>
+          <div>
+            <div class="t-name">Aryan Mehta</div>
+            <div class="t-role">Travel Creator · 340K subscribers</div>
+          </div>
+        </div>
+      </div>
+      <div class="t-card">
+        <p class="t-quote">"I used to freelance through DMs and spreadsheets. Bifrost gave me 4 steady clients in my first month — all the admin is handled, I just edit."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:rgba(200,255,0,0.12);color:var(--lime);">S</div>
+          <div>
+            <div class="t-name">Sofia Reyes</div>
+            <div class="t-role">Video Editor · Premiere Pro &amp; DaVinci</div>
+          </div>
+        </div>
+      </div>
+      <div class="t-card">
+        <p class="t-quote">"The timestamped feedback tool alone is worth it. I used to re-export 5 times per video. Now it's usually one. My editor knows exactly what I mean."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:rgba(107,79,187,0.3);color:var(--violet-light);">J</div>
+          <div>
+            <div class="t-name">Jake Osei</div>
+            <div class="t-role">Tech Reviewer · 1.2M subscribers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <h2>Your next project.<br><em>Already has an editor.</em></h2>
+    <p>Join thousands of creators and editors already working together on Bifrost.</p>
+    <div class="final-actions">
+      <a href="#" class="btn-creator" onclick="openAuth('creator', event)">I'm a creator →</a>
+      <a href="#" class="btn-editor" onclick="openAuth('editor', event)">I'm an editor →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 Bifrost. Made for the people who make things.</p>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Pricing</a>
+      <a href="#">Blog</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay" id="authModal" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modalBox">
+
+      <!-- Accent line (color set by JS) -->
+      <div class="modal-accent" id="modalAccent"></div>
+
+      <!-- Close button -->
+      <button class="modal-close" onclick="closeAuth()" aria-label="Close">×</button>
+
+      <!-- Role badge -->
+      <div class="modal-role-badge" id="modalBadge">
+        <span class="modal-role-dot" id="modalBadgeDot"></span>
+        <span id="modalBadgeText"></span>
+      </div>
+
+      <!-- Title -->
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-subtitle" id="modalSubtitle"></div>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs" id="authTabs">
+        <div class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Log in</div>
+        <div class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign up</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="formLogin">
+        <div class="auth-form">
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" placeholder="••••••••" autocomplete="current-password"/>
+          </div>
+          <div class="auth-meta">
+            <span></span>
+            <a href="#">Forgot password?</a>
+          </div>
+          <button class="auth-submit" id="loginSubmitBtn" onclick="handleSubmit()">Log in</button>
+          <div class="auth-divider"><span>or</span></div>
+          <button class="auth-social" onclick="handleSubmit()">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+              <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="formSignup" style="display:none">
+        <div class="auth-form" id="editorMode">
+          <div class="form-row">
+            <div class="field">
+              <label>First name</label>
+              <input type="text" placeholder="Alex" autocomplete="given-name"/>
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input type="text" placeholder="Rivera" autocomplete="family-name"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="pwdInput" placeholder="At least 8 characters" autocomplete="new-password" oninput="updatePwdStrength(this.value)"/>
+            <div class="pwd-strength">
+              <div class="pwd-bar" id="bar1"></div>
+              <div class="pwd-bar" id="bar2"></div>
+              <div class="pwd-bar" id="bar3"></div>
+              <div class="pwd-bar" id="bar4"></div>
+            </div>
+          </div>
+          <!-- Extra field for editors: software speciality -->
+          <div class="field" id="editorField" style="display:none">
+            <label>Primary software</label>
+            <input type="text" placeholder="e.g. Premiere Pro, DaVinci Resolve…"/>
+          </div>
+          <button class="auth-submit" id="signupSubmitBtn" onclick="handleSubmit()">Create account</button>
+          <div class="auth-divider"><span>or</span></div>
+          <button class="auth-social" onclick="handleSubmit()">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+              <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+          <p class="auth-terms">
+            By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="modal-success" id="modalSuccess">
+        <div class="success-icon" id="successIcon"></div>
+        <div class="success-title" id="successTitle"></div>
+        <p class="success-sub" id="successSub"></p>
+        <button class="auth-submit" id="successBtn" style="width:100%;margin-top:8px" onclick="closeAuth()">
+          Back to homepage
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+
+    // ---- Auth Modal ----
+    let currentRole = 'creator';
+    let currentTab  = 'login';
+
+    const config = {
+      creator: {
+        badge: 'Content Creator',
+        accentClass: 'creator',
+        loginTitle: 'Welcome back',
+        loginSubtitle: 'Log in to manage your projects and find your next editor.',
+        signupTitle: 'Start creating',
+        signupSubtitle: 'Join thousands of creators who ship more content, faster.',
+        submitClass: 'creator-btn',
+        successTitle: 'You\'re in! 🎬',
+        successSub: 'Your creator account is ready. Post your first brief and find an editor who gets your style.',
+        successIcon: '🎥',
+        successBtnClass: 'creator-btn',
+      },
+      editor: {
+        badge: 'Video Editor',
+        accentClass: 'editor',
+        loginTitle: 'Welcome back',
+        loginSubtitle: 'Log in to browse briefs and manage your active projects.',
+        signupTitle: 'List your skills',
+        signupSubtitle: 'Join editors already earning steady income from creators who need your craft.',
+        submitClass: 'editor-btn',
+        successTitle: 'Portfolio live! ✂️',
+        successSub: 'Your editor profile is active. Briefs that match your style will start appearing in your feed.',
+        successIcon: '✂️',
+        successBtnClass: 'editor-btn',
+      }
+    };
+
+    function openAuth(role, e) {
+      if (e) e.preventDefault();
+      currentRole = role;
+      currentTab  = 'login';
+      applyRole(role);
+      switchTab('login');
+      document.getElementById('modalSuccess').classList.remove('visible');
+      document.getElementById('modalSuccess').style.display = 'none';
+      document.getElementById('authTabs').style.display = 'flex';
+      document.getElementById('formLogin').style.display = 'block';
+      document.getElementById('formSignup').style.display = 'none';
+      document.getElementById('authModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function applyRole(role) {
+      const c = config[role];
+      const isEditor = role === 'editor';
+
+      // Accent bar
+      const accent = document.getElementById('modalAccent');
+      accent.className = 'modal-accent ' + c.accentClass;
+
+      // Badge
+      const badge = document.getElementById('modalBadge');
+      badge.className = 'modal-role-badge ' + c.accentClass;
+      document.getElementById('modalBadgeDot').parentElement.className = 'modal-role-badge ' + c.accentClass;
+      document.getElementById('modalBadgeText').textContent = c.badge;
+
+      // Title / subtitle (depends on current tab)
+      updateTitles(role, currentTab);
+
+      // Submit button styles
+      document.getElementById('loginSubmitBtn').className  = 'auth-submit ' + c.submitClass;
+      document.getElementById('signupSubmitBtn').className = 'auth-submit ' + c.submitClass;
+      document.getElementById('successBtn').className      = 'auth-submit ' + c.submitClass;
+
+      // Editor-specific software field
+      document.getElementById('editorField').style.display = isEditor ? 'flex' : 'none';
+
+      // Focus ring colour via class on form wrapper
+      const form = document.getElementById('editorMode');
+      form.classList.toggle('editor-mode', isEditor);
+    }
+
+    function updateTitles(role, tab) {
+      const c = config[role];
+      if (tab === 'login') {
+        document.getElementById('modalTitle').textContent    = c.loginTitle;
+        document.getElementById('modalSubtitle').textContent = c.loginSubtitle;
+      } else {
+        document.getElementById('modalTitle').textContent    = c.signupTitle;
+        document.getElementById('modalSubtitle').textContent = c.signupSubtitle;
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
+      document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+      document.getElementById('formLogin').style.display  = tab === 'login'  ? 'block' : 'none';
+      document.getElementById('formSignup').style.display = tab === 'signup' ? 'block' : 'none';
+      updateTitles(currentRole, tab);
+    }
+
+    function closeAuth() {
+      document.getElementById('authModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('authModal')) closeAuth();
+    }
+
+    function handleSubmit() {
+      const c = config[currentRole];
+      // Hide form content, show success
+      document.getElementById('authTabs').style.display   = 'none';
+      document.getElementById('formLogin').style.display  = 'none';
+      document.getElementById('formSignup').style.display = 'none';
+      document.getElementById('modalTitle').textContent    = '';
+      document.getElementById('modalSubtitle').textContent = '';
+
+      const success = document.getElementById('modalSuccess');
+      document.getElementById('successIcon').textContent = c.successIcon;
+      document.getElementById('successIcon').className   = 'success-icon ' + (currentRole === 'creator' ? 'creator-success-icon' : 'editor-success-icon');
+      document.getElementById('successTitle').textContent = c.successTitle;
+      document.getElementById('successSub').textContent   = c.successSub;
+      success.style.display = 'flex';
+      success.classList.add('visible');
+    }
+
+    // Password strength bars
+    function updatePwdStrength(val) {
+      const len   = val.length;
+      const hasUC = /[A-Z]/.test(val);
+      const hasNum = /[0-9]/.test(val);
+      const hasSym = /[^A-Za-z0-9]/.test(val);
+      const score = (len >= 8 ? 1 : 0) + (hasUC ? 1 : 0) + (hasNum ? 1 : 0) + (hasSym ? 1 : 0);
+
+      const colors = ['#E24B4A', '#E8A020', '#C8FF00', '#5DCAA5'];
+      const bars = ['bar1','bar2','bar3','bar4'];
+      bars.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.style.background = i < score ? colors[score - 1] : 'rgba(255,255,255,0.08)';
+      });
+    }
+
+    // Keyboard close
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAuth();
+    });
+  </script>
+</body>
+</html>
